@@ -2,8 +2,8 @@
 
 from flask import Flask
 from app.routes import bp as routes_bp
-import threading
 import os
+import sys
 
 def create_app():
     app = Flask(__name__)
