@@ -4,7 +4,7 @@ import asyncio
 import socket
 import requests
 
-async def receive_ip_from_esp32(port=4000):
+async def receive_ip_from_esp32(port=6000):
     loop = asyncio.get_event_loop()
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(('0.0.0.0', port))
