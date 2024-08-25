@@ -46,7 +46,7 @@ class SoilMoistureService:
 
 
                 else:
-                    error_message = {'error': 'Failed to get soil moisture from ESP32'}
+                    error_message = {'ErrorMessage': 'Failed to get soil moisture from ESP32'}
                     ch.basic_publish(
                         exchange='',
                         routing_key=app.config['MSMICROCONTROLLERMANAGER_TO_MSGETSOILMOISTURE_RESPONSE_QUEUE'],
@@ -60,7 +60,7 @@ class SoilMoistureService:
 
             except requests.exceptions.Timeout:
                 timeout_error_message = {
-                    'error': 'Request to ESP32 timed out.',
+                    'ErrorMessage': 'Request to ESP32 timed out.',
                     'correlation_id': correlation_id
                 }
                 ch.basic_publish(
@@ -76,7 +76,7 @@ class SoilMoistureService:
 
             except requests.exceptions.RequestException as e:
                 request_error_message = {
-                    'error': f'Error while receiving data from ESP32: {str(e)}' f'RequestId: {request_id}',
+                    'ErrorMessage': f'Error while receiving data from ESP32: {str(e)}' f'RequestId: {request_id}',
                 }
                 ch.basic_publish(
                     exchange='',

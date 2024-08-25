@@ -15,6 +15,6 @@ def get_guid():
             data = response.json()
             return jsonify({'guid': data['guid']}), 200
         else:
-            return jsonify({'error': 'Failed to get GUID from ESP32'}), response.status_code
+            return jsonify({'ErrorMessage': 'Failed to get GUID from ESP32'}), response.status_code
     except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'ErrorMessage': str(e)}), 500

@@ -1,5 +1,3 @@
-# app/routes/microcontroller/temperature_humidity.py
-
 from flask import Blueprint, jsonify
 import requests
 from app.device_manager import DeviceManager
@@ -15,6 +13,10 @@ def get_temperature_humidity():
             data = response.json()
             return jsonify(data), 200
         else:
-            return jsonify({'error': 'Failed to get temperature and humidity from ESP32'}), response.status_code
+            try:
+                error_message = response.json().get('error', 'Unknown error')
+            except ValueError:
+                error_message = response.text
+            return jsonify({'ErrorMessage': error_message}), response.status_code
     except requests.exceptions.RequestException as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'ErrorMessage': str(e)}), 500

@@ -13,7 +13,7 @@ def getipesp32():
     ip = loop.run_until_complete(receive_ip_from_esp32())
     
     if not ip:
-        return jsonify({'error': 'Failed to receive IP from ESP32'}), 500
+        return jsonify({'ErrorMessage': 'Failed to receive IP from ESP32'}), 500
     
     guid = fetch_guid_from_esp32(ip)
     

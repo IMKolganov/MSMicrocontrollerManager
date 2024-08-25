@@ -10,6 +10,6 @@ def device_info():
     guid = DeviceManager.get_guid()
 
     if not ip or not guid:
-        return jsonify({'error': 'Device information is not available'}), 404
+        return jsonify({'ErrorMessage': 'Device information is not available'}), 404
     
     return jsonify({'ip': ip, 'guid': guid}), 200
