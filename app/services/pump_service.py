@@ -14,16 +14,23 @@ class PumpService:
         request_data = json.loads(body)
         request_id = request_data.get('RequestId')
         method_name = request_data.get('MethodName')
+        pump_id = request_data.get('id') 
+        
         correlation_id = properties.correlation_id
+
         print(f"Request from {app.config['MSPUMPCONTROL_TO_MSMICROCONTROLLERMANAGER_REQUEST_QUEUE']} "
-            f"RequestId: {request_id}, Request: {request_data}")
+              f"RequestId: {request_id}, Request: {request_data}")
 
         if method_name == 'start-pump':
             ip = DeviceManager.get_ip()
-            
+
             try:
-                # Perform HTTP GET request with a timeout of 5 seconds
-                response = requests.get(f'http://{ip}/start-pump', timeout=5)
+                response = requests.post(
+                    f'http://{ip}/start-pump', 
+                    json={'id': pump_id}, 
+                    timeout=5
+                )
+                
                 if response.status_code == 200:
                     data = response.json()
                     response_message = {
@@ -42,8 +49,7 @@ class PumpService:
                     )
                     ch.basic_ack(delivery_tag=method.delivery_tag)
                     print(f"Response sent to {app.config['MSMICROCONTROLLERMANAGER_TO_MSPUMPCONTROL_RESPONSE_QUEUE']} "
-                        f"RequestId: {request_id}, Response: {response_message}")
-
+                          f"RequestId: {request_id}, Response: {response_message}")
 
                 else:
                     try:
@@ -60,7 +66,7 @@ class PumpService:
                         )
                     )
                     ch.basic_ack(delivery_tag=method.delivery_tag)
-                    print(f"Failed to start pump from ESP32. Error: {error_message}" f"RequestId: {request_id}")
+                    print(f"Failed to start pump from ESP32. Error: {error_message} " f"RequestId: {request_id}")
 
             except requests.exceptions.Timeout:
                 timeout_error_message = {
@@ -80,7 +86,8 @@ class PumpService:
 
             except requests.exceptions.RequestException as e:
                 request_error_message = {
-                    'ErrorMessage': f'Error while receiving data from ESP32: {str(e)}' f'RequestId: {request_id}',
+                    'ErrorMessage': f'Error while receiving data from ESP32: {str(e)}',
+                    'RequestId': request_id
                 }
                 ch.basic_publish(
                     exchange='',
