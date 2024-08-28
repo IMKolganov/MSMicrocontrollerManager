@@ -1,6 +1,5 @@
 import json
 import time
-import uuid
 import pika
 import requests
 from datetime import datetime
@@ -13,9 +12,11 @@ class TemperatureHumidityService:
 
     def handle_request(self, ch, method, properties, body, app):
         request_data = json.loads(body)
-        request_id = request_data.get('GUID', str(uuid.uuid4()))
+        request_id = request_data.get('RequestId')
         method_name = request_data.get('MethodName')
         correlation_id = properties.correlation_id
+        print(f"Request from {app.config['MSGETTEMPERATUREANDHUMIDIFY_TO_MSMICROCONTROLLERMANAGER_REQUEST_QUEUE']} "
+            f"RequestId: {request_id}, Request: {request_data}")
 
         if method_name == 'get-temperature-and-humidify':
             ip = DeviceManager.get_ip()
@@ -28,8 +29,8 @@ class TemperatureHumidityService:
                     response_message = {
                         'RequestId': request_id,
                         'MethodName': method_name,
-                        'Temperature': data.get('Temperature', 0),
-                        'Humidity': data.get('Humidity', 0),
+                        'Temperature': data.get('temperature', 0),
+                        'Humidity': data.get('humidity', 0),
                         'CreateDate': datetime.utcnow().isoformat()
                     }
                     ch.basic_publish(
@@ -42,7 +43,7 @@ class TemperatureHumidityService:
                     )
                     ch.basic_ack(delivery_tag=method.delivery_tag)
                     print(f"Response sent to {app.config['MSMICROCONTROLLERMANAGER_TO_MSGETTEMPERATUREANDHUMIDIFY_RESPONSE_QUEUE']} "
-                        f"RequestId: {request_id}")
+                        f"RequestId: {request_id}, Response: {response_message}")
 
 
                 else:
