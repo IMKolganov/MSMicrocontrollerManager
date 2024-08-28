@@ -8,6 +8,7 @@ import sys
 from app.clients.rabbit_mq_client import RabbitMQClient
 from app.services.soil_moisture_service import SoilMoistureService
 from app.services.temperature_humidity_service import TemperatureHumidityService
+from app.services.pump_service import PumpService
 
 def create_app():
     app = Flask(__name__)
@@ -41,6 +42,11 @@ def start_message_processing(app):
 
     temperature_humidity_service = TemperatureHumidityService(rabbitmq_client=rabbitmq_client)
     processing_thread = threading.Thread(target=temperature_humidity_service.start_listening, args=(app,))
+    processing_thread.daemon = True
+    processing_thread.start()
+
+    pump_service = PumpService(rabbitmq_client=rabbitmq_client)
+    processing_thread = threading.Thread(target=pump_service.start_listening, args=(app,))
     processing_thread.daemon = True
     processing_thread.start()
     print("Message processing thread started")
