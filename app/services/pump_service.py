@@ -36,8 +36,9 @@ class PumpService:
                     response_message = {
                         'RequestId': request_id,
                         'MethodName': method_name,
-                        'Status': data.get('status', ''),
-                        'CreateDate': datetime.utcnow().isoformat()
+                        # 'Status': data.get('status', ''),
+                        'CreateDate': datetime.utcnow().isoformat(),
+                        'ErrorMessage': ''
                     }
                     ch.basic_publish(
                         exchange='',
@@ -56,7 +57,14 @@ class PumpService:
                         error_message_esp = response.json().get('error', 'Unknown error')
                     except ValueError:
                         error_message_esp = response.text
-                    error_message = {'ErrorMessage': f'Failed to start pump from ESP32. Response: {error_message_esp}'}
+
+                    error_message = {
+                        'RequestId': request_id,
+                        'MethodName': method_name,
+                        # 'Status': data.get('status', ''),
+                        'CreateDate': datetime.utcnow().isoformat(),
+                        'ErrorMessage': f'Failed to start pump from ESP32. Response: {error_message_esp}'
+                    }
                     ch.basic_publish(
                         exchange='',
                         routing_key=app.config['MSMICROCONTROLLERMANAGER_TO_MSPUMPCONTROL_RESPONSE_QUEUE'],
@@ -70,9 +78,13 @@ class PumpService:
 
             except requests.exceptions.Timeout:
                 timeout_error_message = {
-                    'ErrorMessage': 'Request to ESP32 timed out.',
-                    'correlation_id': correlation_id
+                    'RequestId': request_id,
+                    'MethodName': method_name,
+                    # 'Status': data.get('status', ''),
+                    'CreateDate': datetime.utcnow().isoformat(),
+                    'ErrorMessage': 'Request to ESP32 timed out.'
                 }
+
                 ch.basic_publish(
                     exchange='',
                     routing_key=app.config['MSMICROCONTROLLERMANAGER_TO_MSPUMPCONTROL_RESPONSE_QUEUE'],
@@ -86,8 +98,11 @@ class PumpService:
 
             except requests.exceptions.RequestException as e:
                 request_error_message = {
+                    'RequestId': request_id,
+                    'MethodName': method_name,
+                    # 'Status': data.get('status', ''),
+                    'CreateDate': datetime.utcnow().isoformat(),
                     'ErrorMessage': f'Error while receiving data from ESP32: {str(e)}',
-                    'RequestId': request_id
                 }
                 ch.basic_publish(
                     exchange='',
