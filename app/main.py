@@ -9,6 +9,8 @@ from app.clients.rabbit_mq_client import RabbitMQClient
 from app.services.soil_moisture_service import SoilMoistureService
 from app.services.temperature_humidity_service import TemperatureHumidityService
 from app.services.pump_service import PumpService
+from app.services.message_service import MessageService
+import paho.mqtt.client as mqtt
 
 def create_app():
     app = Flask(__name__)
@@ -32,21 +34,20 @@ def handle_signal(signum, frame):
 
 def start_message_processing(app):
     """Starts message processing in a separate thread with application context."""
-    import app.services.soil_moisture_service as soil_moisture_service
+
+    # Инициализация RabbitMQ клиента
     rabbitmq_client = RabbitMQClient(host=app.config['RABBITMQ_HOST'], queues=app.config['QUEUES'])
 
-    soil_moisture_service = SoilMoistureService(rabbitmq_client=rabbitmq_client)
-    processing_thread = threading.Thread(target=soil_moisture_service.start_listening, args=(app,))
+    # Инициализация MQTT клиента
+    mqtt_client = mqtt.Client()
+    mqtt_client.connect(app.config['RABBITMQ_HOST'], 1883, 60)  # Укажите адрес и порт вашего брокера
+
+    # Создаем объект MessageService с двумя клиентами
+    message_service = MessageService(rabbitmq_client=rabbitmq_client, mqtt_client=mqtt_client)
+
+    # Запускаем обработку сообщений в отдельном потоке
+    processing_thread = threading.Thread(target=message_service.start_listening, args=(app,))
     processing_thread.daemon = True
     processing_thread.start()
 
-    temperature_humidity_service = TemperatureHumidityService(rabbitmq_client=rabbitmq_client)
-    processing_thread = threading.Thread(target=temperature_humidity_service.start_listening, args=(app,))
-    processing_thread.daemon = True
-    processing_thread.start()
-
-    pump_service = PumpService(rabbitmq_client=rabbitmq_client)
-    processing_thread = threading.Thread(target=pump_service.start_listening, args=(app,))
-    processing_thread.daemon = True
-    processing_thread.start()
     print("Message processing thread started")

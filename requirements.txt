@@ -6,3 +6,4 @@ bleak
 pika
 celery
 redis
+paho-mqtt
