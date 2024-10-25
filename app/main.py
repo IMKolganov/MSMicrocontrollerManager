@@ -6,9 +6,6 @@ import threading
 import os
 import sys
 from app.clients.rabbit_mq_client import RabbitMQClient
-from app.services.soil_moisture_service import SoilMoistureService
-from app.services.temperature_humidity_service import TemperatureHumidityService
-from app.services.pump_service import PumpService
 from app.services.message_service import MessageService
 import paho.mqtt.client as mqtt
 
