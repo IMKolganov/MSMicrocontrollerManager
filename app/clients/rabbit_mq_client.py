@@ -17,7 +17,6 @@ class RabbitMQClient:
         )
         channel = connection.channel()
         
-        # Декларация всех очередей из конфигурации
         for queue_name in self.queues:
             channel.queue_declare(queue=queue_name, durable=False, exclusive=False, auto_delete=False)
         

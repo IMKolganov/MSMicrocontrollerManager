@@ -5,20 +5,23 @@ import os
 class Config:
     RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'localhost')
 
-    MSGETSOILMOISTURE_TO_MSMICROCONTROLLERMANAGER_REQUEST_QUEUE = os.getenv('MSGETSOILMOISTURE_TO_MSMICROCONTROLLERMANAGER_REQUEST_QUEUE', 'msgetsoilmoisture.to.msmicrocontrollermanager.request')
-    MSMICROCONTROLLERMANAGER_TO_MSGETSOILMOISTURE_RESPONSE_QUEUE = os.getenv('MSMICROCONTROLLERMANAGER_TO_MSGETSOILMOISTURE_RESPONSE_QUEUE', 'msmicrocontrollermanager.to.msgetsoilmoisture.response')
-    MSGETTEMPERATUREANDHUMIDIFY_TO_MSMICROCONTROLLERMANAGER_REQUEST_QUEUE =  os.getenv('MSGETTEMPERATUREANDHUMIDIFY_TO_MSMICROCONTROLLERMANAGER_REQUEST_QUEUE', 'msgettemperatureandhumidify.to.msmicrocontrollermanager.request')
-    MSMICROCONTROLLERMANAGER_TO_MSGETTEMPERATUREANDHUMIDIFY_RESPONSE_QUEUE =  os.getenv('MSMICROCONTROLLERMANAGER_TO_MSGETTEMPERATUREANDHUMIDIFY_RESPONSE_QUEUE', 'msmicrocontrollermanager.to.msgettemperatureandhumidify.response')
+class Config:
+    RABBITMQ_HOST = os.getenv('RABBITMQ_HOST', 'localhost')
 
-
-    QUEUES = [
-        MSGETSOILMOISTURE_TO_MSMICROCONTROLLERMANAGER_REQUEST_QUEUE,
-        MSMICROCONTROLLERMANAGER_TO_MSGETSOILMOISTURE_RESPONSE_QUEUE,
-        MSGETTEMPERATUREANDHUMIDIFY_TO_MSMICROCONTROLLERMANAGER_REQUEST_QUEUE,
-        MSMICROCONTROLLERMANAGER_TO_MSGETTEMPERATUREANDHUMIDIFY_RESPONSE_QUEUE
-    ]
-    
-    MICROCONTROLLER_MANAGER_URL = os.getenv('MICROCONTROLLER_MANAGER_URL', 'http://localhost:4000')
+    QUEUES = {
+        "get_soil_moisture": {
+            "request_queue": "msgetsoilmoisture.to.msmicrocontrollermanager.request",
+            "response_queue": "msmicrocontrollermanager.to.msgetsoilmoisture.response"
+        },
+        "get_temperature_and_humidity": {
+            "request_queue": "msgettemperatureandhumidify.to.msmicrocontrollermanager.request",
+            "response_queue": "msmicrocontrollermanager.to.msgettemperatureandhumidify.response"
+        },
+        "pump_control": {
+            "request_queue": "mspumpcontrol.to.msmicrocontrollermanager.request",
+            "response_queue": "msmicrocontrollermanager.to.mspumpcontrol.response"
+        }
+    }
 
 
 class DevelopmentConfig(Config):

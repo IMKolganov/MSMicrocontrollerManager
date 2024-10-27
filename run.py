@@ -13,6 +13,7 @@ def handle_shutdown_signal(signum, frame):
     sys.exit(0)
 
 if __name__ == '__main__':
+    print("Starting Flask app...")
     # Register signal handlers for graceful shutdown
     signal.signal(signal.SIGINT, handle_shutdown_signal)
     signal.signal(signal.SIGTERM, handle_shutdown_signal)
